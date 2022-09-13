@@ -6,6 +6,9 @@ package it.polito.tdp.itunes;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.itunes.model.Album;
+import it.polito.tdp.itunes.model.AlbumBilancio;
 import it.polito.tdp.itunes.model.Model;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -34,10 +37,10 @@ public class FXMLController {
     private Button btnPercorso; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA1"
-    private ComboBox<?> cmbA1; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA1; // Value injected by FXMLLoader
 
     @FXML // fx:id="cmbA2"
-    private ComboBox<?> cmbA2; // Value injected by FXMLLoader
+    private ComboBox<Album> cmbA2; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtN"
     private TextField txtN; // Value injected by FXMLLoader
@@ -50,7 +53,20 @@ public class FXMLController {
 
     @FXML
     void doCalcolaAdiacenze(ActionEvent event) {
+    	txtResult.clear();
+    	//int n=this.txtN.getText();  
+    	if(cmbA1.getValue()==null) {
+    		txtResult.appendText("Seleziona un album");
+    		return; 
+    	}
+    	if(!model.esisteGrafo()) {
+    		txtResult.appendText("Crea prima il grafo");
+    		return;
+    	}
     	
+    		for(AlbumBilancio ab: model.getBilancio(cmbA1.getValue())) {
+    			txtResult.appendText(ab+"\n");
+    	}
     }
 
     @FXML
@@ -60,7 +76,17 @@ public class FXMLController {
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
-    	
+    	txtResult.clear();
+    	double n;
+    	try {
+    		n= Double.parseDouble(this.txtN.getText());
+    		txtResult.appendText(model.creaGrafo(n));
+    		this.cmbA1.getItems().addAll(model.getVertici());
+    	}catch(NumberFormatException e) {
+    		txtResult.clear();
+    		txtResult.appendText("Inserire n");
+    		return;
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete

@@ -16,17 +16,23 @@ import it.polito.tdp.itunes.model.Track;
 
 public class ItunesDAO {
 	
-	public List<Album> getAllAlbums(){
-		final String sql = "SELECT * FROM Album";
+	public List<Album> getAllAlbums(double p){
+		final String sql = "SELECT distinct  a.*, (Sum(t.Milliseconds)/1000) AS p "
+				+ "from album a, track t "
+				+ "WHERE a.AlbumId=t.AlbumId "
+				+ "GROUP BY a.AlbumId "
+				+ "HAVING p>? "
+				+ "order by a.Title ";
 		List<Album> result = new LinkedList<>();
 		
 		try {
 			Connection conn = DBConnect.getConnection();
 			PreparedStatement st = conn.prepareStatement(sql);
+			st.setDouble(1, p);
 			ResultSet res = st.executeQuery();
 
 			while (res.next()) {
-				result.add(new Album(res.getInt("AlbumId"), res.getString("Title")));
+				result.add(new Album(res.getInt("AlbumId"), res.getString("Title"), res.getDouble("p")));
 			}
 			conn.close();
 		} catch (SQLException e) {
