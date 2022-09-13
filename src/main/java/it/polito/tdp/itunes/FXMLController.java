@@ -5,6 +5,7 @@
 package it.polito.tdp.itunes;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import it.polito.tdp.itunes.model.Album;
@@ -55,12 +56,14 @@ public class FXMLController {
     void doCalcolaAdiacenze(ActionEvent event) {
     	txtResult.clear();
     	//int n=this.txtN.getText();  
-    	if(cmbA1.getValue()==null) {
-    		txtResult.appendText("Seleziona un album");
-    		return; 
-    	}
     	if(!model.esisteGrafo()) {
-    		txtResult.appendText("Crea prima il grafo");
+    		txtResult.clear();
+    		txtResult.appendText("CREA PRIMA GRAFO\n");
+    		return;
+    	}
+    	if(cmbA1.getValue()==null) {
+    		txtResult.clear();
+    		txtResult.appendText("SCEGLI PRIMA ALBUM\n");
     		return;
     	}
     	
@@ -71,20 +74,77 @@ public class FXMLController {
 
     @FXML
     void doCalcolaPercorso(ActionEvent event) {
+    	txtResult.clear();
+    	double x; 
+     	if(!model.esisteGrafo()) {
+    		txtResult.clear();
+    		txtResult.appendText("CREA PRIMA GRAFO\n");
+    		return;
+    	}
+    	if(cmbA1.getValue()==null) {
+    		txtResult.clear();
+    		txtResult.appendText("SCEGLI PRIMO ALBUM\n");
+    		return;
+    	}
+    	if(cmbA2.getValue()==null) {
+    		txtResult.clear();
+    		txtResult.appendText("SCEGLI SECONDO ALBUM\n");
+    		return;
+    	}
+    	if(cmbA1.getValue().equals(cmbA2.getValue())) {
+    		txtResult.clear();
+    		txtResult.appendText("SLEZIONARE DUE ALBUM DIVERSI\n");
+    		return;
+    	}
+    	if(txtX.getText()=="") {
+    		txtResult.clear();
+    		txtResult.appendText("SCEGLI PRIMA SOGLIA\n");
+    		return;
+    	}
+    	
+    	
+    	Album a1= this.cmbA1.getValue();
+    	Album a2= this.cmbA2.getValue();
+    	if(a1!= null && a2!= null && a1!=a2) {
+    		try {
+    	    	x=Double.parseDouble(this.txtX.getText());
+    	    		if(model.sonoConnessi(a1, a2)) {
+    	    				for(Album a:model.calcolaPercorso(a1, a2, x)) {
+    	    						txtResult.appendText(a+"\n");
+    	    				}
+    	    		}
+		else {
+			txtResult.appendText("VERTICI NON COLLEGATI");
+		}
+    
+    	}catch(NumberFormatException e) {
+			txtResult.clear();
+    		txtResult.appendText("INSERISCI SOGLIA VALIDA\n");
+    		return; 
+    	}
+    	}
     	
     }
 
     @FXML
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
+    	if(txtN.getText()=="") {
+    		txtResult.clear();
+    		txtResult.appendText("SCEGLI PRIMA NUMERO\n");
+    		return;
+    	}
     	double n;
     	try {
     		n= Double.parseDouble(this.txtN.getText());
     		txtResult.appendText(model.creaGrafo(n));
+    		this.cmbA1.getItems().clear();
+    		this.cmbA2.getItems().clear();
     		this.cmbA1.getItems().addAll(model.getVertici());
+    		this.cmbA2.getItems().addAll(model.getVertici());
     	}catch(NumberFormatException e) {
     		txtResult.clear();
-    		txtResult.appendText("Inserire n");
+    		txtResult.appendText("INSERISCI NUMERO VALIDO\n");
     		return;
     	}
     }
